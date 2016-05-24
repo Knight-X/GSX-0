@@ -2,10 +2,14 @@
 #include <stdint.h>
 #include "reg.h"
 #include "task.h"
+#include "os.h"
+#include "list.h"
 
 #define CPU_CLOCK_HZ 72000000
 #define TICK_RATE_HZ 10
 #define USART_FLAG_TXE ((uint16_t) 0x0080)
+
+struct list ready_list[PRIORITY_LIMIT + 1];
 
 void usart_init(void)
 {
@@ -66,6 +70,9 @@ int main(void)
 
     usart_init();
 
+    for (int i = 0; i < PRIORITY_LIMIT; i++) {
+        list_init(&ready_list[i]);
+    }
     if (task_create(test1, (void *)str1) == -1)
         print_str("Failed for test1\n");
 
