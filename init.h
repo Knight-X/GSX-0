@@ -25,7 +25,10 @@
 
 void rcc_clock_init(void);
 void reset_handler(void);
-void default_handler(void);
+void default_handler(void)
+{
+    while (1);
+}
 
 void nmi_handler(void) __attribute((weak, alias("default_handler")));
 void hardfault_handler(void) __attribute((weak, alias("default_handler")));
@@ -35,3 +38,5 @@ void usagefault_handler(void) __attribute((weak, alias("default_handler")));
 void svc_handler(void) __attribute((weak, alias("default_handler")));
 void pendsv_handler(void) __attribute((weak, alias("default_handler")));
 void systick_handler(void) __attribute((weak, alias("default_handler")));
+
+#endif
