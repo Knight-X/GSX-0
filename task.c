@@ -8,21 +8,24 @@
 
 #define TASK_PSP 0XFFFFFFFD
 
+int pr = 0;
 
+int timeup = 0;
 typedef struct{
     void *stack;
     void *orig_stack;
     uint8_t in_use;
     uint8_t tid;
-    struct list info;
+    int priority;
+    struct list listNode;
 } tcb_t;
 
 static tcb_t tasks[MAX_TASKS];
 static int first = 1;
 static int lastTask;
-//extern struct list ready_list[PRIORITY_LIMIT + 1];
+extern struct list readyList[PRIORITY_LIMIT + 1];
 
-int task_create(void (*run)(void *), void *userdata)
+int task_create(void (*run)(void *), void *userdata, int priority)
 {
     uint32_t *stack;
     int taskId = 0;
@@ -34,6 +37,7 @@ int task_create(void (*run)(void *), void *userdata)
     stack = malloc(STACK_SIZE * sizeof(uint32_t));
     tasks[taskId].orig_stack = stack;
     tasks[taskId].tid = taskId;
+    tasks[taskId].priority = priority;
     stack += STACK_SIZE - 32;
 
     if (first == 1) {
@@ -50,6 +54,9 @@ int task_create(void (*run)(void *), void *userdata)
 
     tasks[taskId].stack = stack;
     tasks[taskId].in_use = 1;
+    list_init(&tasks[taskId].listNode);
+    list_push(&readyList[tasks[taskId].priority], &tasks[taskId].listNode);
+
 
     return taskId;
 }
@@ -75,6 +82,7 @@ void task_start()
 void task_kill(int task_id)
 {
     asm volatile("cpsid i\n");
+    list_remove(&tasks[task_id].listNode);
     tasks[task_id].in_use = 0;
 
     free(tasks[task_id].orig_stack);
@@ -90,20 +98,32 @@ int context_switch()
     list = ready_list[i].next;
     task = LIST_ENTRY(list, tcb_t, info);
     return task->tid;
-}
-*/
+}*/
+
 void __attribute__((naked)) pendsv_handler()
 {
+    tcb_t *task;
 
     asm volatile("mrs r0, psp\n"
                  "stmdb r0!, {r4-r11, lr}\n");
 
     asm volatile("mov %0, r0\n" : "=r" (tasks[lastTask].stack));
+    task = &tasks[lastTask];
+    if (timeup && readyList[task->priority].next == &task->listNode) {
+        list_push(&readyList[task->priority], &task->listNode);
+        timeup = 0;
+    }
 
-    if (lastTask == 0) 
-        lastTask = 1;
+//    for (pr = 0; list_empty(&readyList[pr]); pr++);
+
+    if (pr == 1) 
+        pr = 0;
     else 
-        lastTask = 0;
+        pr = 1;
+
+    struct list *list = readyList[pr].next;
+    task = LIST_ENTRY(list, tcb_t, listNode);
+    lastTask = task->tid;
 
     asm volatile("mov r0, %0\n" : : "r" (tasks[lastTask].stack));
 
@@ -114,5 +134,6 @@ void __attribute__((naked)) pendsv_handler()
 
 void systick_handler()
 {
+    timeup = 1;
     *SCB_ICSR |= SCB_ICSR_PENDSVSET;
 }

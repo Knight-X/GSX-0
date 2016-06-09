@@ -9,7 +9,7 @@
 #define TICK_RATE_HZ 10
 #define USART_FLAG_TXE ((uint16_t) 0x0080)
 
-struct list ready_list[PRIORITY_LIMIT + 1];
+struct list readyList[PRIORITY_LIMIT + 1];
 
 void usart_init(void)
 {
@@ -64,19 +64,27 @@ void test2(void *userdata)
     busy_loop(userdata);
 }
 
+void test3(void *userdata)
+{
+    busy_loop(userdata);
+}
+
 int main(void)
 {
-    const char *str1 = "Task1", *str2 = "Task2";
+    const char *str1 = "Task1", *str2 = "Task2", *str3 = "Task3";
 
     usart_init();
 
     for (int i = 0; i < PRIORITY_LIMIT; i++) {
-        list_init(&ready_list[i]);
+        list_init(&readyList[i]);
     }
-    if (task_create(test1, (void *)str1) == -1)
+    if (task_create(test1, (void *)str1, 0) == -1)
         print_str("Failed for test1\n");
 
-    if (task_create(test2, (void *)str2) == -1)
+    if (task_create(test2, (void *)str2, 1) == -1)
+        print_str("Failed for test2\n");
+    
+    if (task_create(test3, (void *)str3, 1) == -1)
         print_str("Failed for test2\n");
 
     *SYSTICK_LOAD = (CPU_CLOCK_HZ / TICK_RATE_HZ) - 1UL;
