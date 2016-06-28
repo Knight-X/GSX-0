@@ -62,7 +62,7 @@ int romfs_open(void *opaque, const char *path, int flags, int mode)
 }
 	
 
-void register_romfs(const char *mountpoint, void *opaque)
+void register_romfs(const char *mountpoint, const uint32_t *romfs)
 {
-	register_fs(mountpoint, romfs_open, opaque);
+	register_fs(mountpoint, romfs_open, (void *)romfs);
 }

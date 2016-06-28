@@ -4,6 +4,9 @@
 #include "task.h"
 #include "os.h"
 #include "list.h"
+#include "filesystem.h"
+#include "fio.h"
+#include "romfs.h"
 
 #define CPU_CLOCK_HZ 72000000
 #define TICK_RATE_HZ 10
@@ -11,6 +14,7 @@
 
 struct list readyList[PRIORITY_LIMIT + 1];
 
+extern uint32_t _sromfs;
 void usart_init(void)
 {
     *(RCC_APB2ENR) |= (uint32_t) (0x00000001 | 0x00000004);
@@ -73,8 +77,12 @@ int main(void)
 {
     const char *str1 = "Task1", *str2 = "Task2", *str3 = "Task3";
 
+
     usart_init();
 
+    fio_init();
+    fs_init();
+    register_romfs("romfs", &_sromfs);
     for (int i = 0; i < PRIORITY_LIMIT; i++) {
         list_init(&readyList[i]);
     }

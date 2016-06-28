@@ -25,18 +25,18 @@
 
 void rcc_clock_init(void);
 void reset_handler(void);
-void default_handler(void)
+void default_handler2(void)
 {
-    while (1);
+	while (1);
 }
 
-void nmi_handler(void) __attribute((weak, alias("default_handler")));
-void hardfault_handler(void) __attribute((weak, alias("default_handler")));
-void memmanage_handler(void) __attribute((weak, alias("default_handler")));
-void busfault_handler(void) __attribute((weak, alias("default_handler")));
-void usagefault_handler(void) __attribute((weak, alias("default_handler")));
-void svc_handler(void) __attribute((weak, alias("default_handler")));
-void pendsv_handler(void) __attribute((weak, alias("default_handler")));
-void systick_handler(void) __attribute((weak, alias("default_handler")));
+void nmi_handler(void) __attribute((weak, alias("default_handler2")));
+void hardfault_handler(void) __attribute((weak, alias("default_handler2")));
+void memmanage_handler(void) __attribute((weak, alias("default_handler2")));
+void busfault_handler(void) __attribute((weak, alias("default_handler2")));
+void usagefault_handler(void) __attribute((weak, alias("default_handler2")));
+void svc_handler(void) __attribute((weak, alias("default_handler2")));
+void pendsv_handler(void) __attribute((weak, alias("default_handler2")));
+void systick_handler(void) __attribute((weak, alias("default_handler2")));
 
 #endif

@@ -15,8 +15,8 @@ SECTIONS
         *(.text.*)
         *(.rodata)
         *(.rodata.*)
-        _sromdev = .;
-        _eromdev = .;
+        _sromfs = .;
+        _eromfs = .;
         _sinidata = .;
     } >FLASH
 

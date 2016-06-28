@@ -17,6 +17,7 @@ extern uint32_t _ebss;
 
 extern uint32_t _estack;
 
+
 __attribute((section(".isr_vector")))
 uint32_t *isr_vectors[] = {
     [0x00] = (uint32_t *) &_estack,
@@ -29,7 +30,6 @@ uint32_t *isr_vectors[] = {
     [0x0E] = (uint32_t *) pendsv_handler,
     [0x0F] = (uint32_t *) systick_handler
 };
-
 
 void reset_handler(void)
 {
