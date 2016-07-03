@@ -2,13 +2,31 @@
 #include "filesystem.h"
 #include "romfs.h"
 #include <string.h>
+#include "os.h"
 
 static struct fio_def_t fio_t[MAX_FS];
 
+static ssize_t stdin_read(void *opaque, void *buf, size_t count) {
+	return 0;
+}
+
+static ssize_t stdin_write(void *opaque, void *buf, size_t count) {
+	int i;
+	const char *data = (const char *)buf;
+        print_str("xxx\n");	
+	for (i = 0; i < count; i++) {
+		const char *a = (data + i);
+		print_str(a);
+	}
+
+	return count;
+}
 
 __attribute__((constructor)) void fio_init()
 {
 	memset(fio_t, 0, sizeof(fio_t));
+	fio_t[0].fdread = stdin_read;
+	fio_t[1].fdwrite = stdin_write;
 }
 
 static int fio_findfd()
@@ -69,9 +87,10 @@ int fio_read(int fd, void *buf, size_t count)
 		if (fio_t[fd].fdread) {
 			r = fio_t[fd].fdread(fio_t[fd].opaque, buf, count);
 		} else {
-			r = -2;
+			r = -3;
 		}
-		r = -3;
+	} else {
+		r = -2;
 	}
 	return r;
 }	
@@ -80,12 +99,13 @@ int fio_write(int fd, void *buf, size_t count)
 {
 	int r;
 	if (fio_is_open(fd)) {
-		if (fio_t[fd].fdread) {
+		if (fio_t[fd].fdwrite) {
 			r = fio_t[fd].fdwrite(fio_t[fd].opaque, buf, count);
 		} else {
-			r = -2;
+			r = -3;
 		}
-		r = -3;
+	} else {
+		return -2;
 	}
 
 	return r;

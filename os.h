@@ -6,4 +6,5 @@
 #define MAX_HEAPS 4096
 #define PRIORITY_LIMIT 32
 
+void print_str(const char *str);
 #endif

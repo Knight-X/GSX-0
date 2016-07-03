@@ -7,7 +7,6 @@
 #include "filesystem.h"
 #include "fio.h"
 #include "romfs.h"
-
 #define CPU_CLOCK_HZ 72000000
 #define TICK_RATE_HZ 10
 #define USART_FLAG_TXE ((uint16_t) 0x0080)
@@ -15,6 +14,7 @@
 struct list readyList[PRIORITY_LIMIT + 1];
 
 extern uint32_t _sromfs;
+
 void usart_init(void)
 {
     *(RCC_APB2ENR) |= (uint32_t) (0x00000001 | 0x00000004);
@@ -70,19 +70,25 @@ void test2(void *userdata)
 
 void test3(void *userdata)
 {
-    busy_loop(userdata);
+    busy_loop(userdata);	
 }
 
 int main(void)
 {
     const char *str1 = "Task1", *str2 = "Task2", *str3 = "Task3";
 
-
     usart_init();
-
-    fio_init();
     fs_init();
+    fio_init();
     register_romfs("romfs", &_sromfs);
+
+    char buf[128];
+    size_t count;
+    int fd = open("/romfs/test.txt", 0, O_RDONLY);
+
+        count = fio_read(fd, buf, sizeof(buf));
+        fio_write(1, buf, count);
+
     for (int i = 0; i < PRIORITY_LIMIT; i++) {
         list_init(&readyList[i]);
     }

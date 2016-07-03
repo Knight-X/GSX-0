@@ -33,7 +33,10 @@ qemu: $(TARGET)
 	@echo "Press Ctrl-A and then X to exit QEMU"
 	@echo
 	qemu-system-arm -M stm32-p103 -nographic -kernel os.bin
-
+qemudbg: $(TARGET) 
+	qemu-system-arm -M stm32-p103 \
+		-gdb tcp::3333 -S \
+		-kernel os.bin
 clean:
 	rm -f *.o *.elf *.bin *.list
 
