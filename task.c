@@ -4,7 +4,7 @@
 #include "malloc.h"
 #include "os.h"
 #include "list.h"
-
+#include "fio.h"
 
 #define TASK_PSP 0XFFFFFFFD
 
@@ -99,6 +99,29 @@ int context_switch()
     task = LIST_ENTRY(list, tcb_t, info);
     return task->tid;
 }*/
+
+void __attribute__((naked)) svc_handler()
+{
+   // unsigned int x = ((unsigned int *)gg)[3];
+    asm volatile("mrs r0, psp\n"
+		"stmdb r0!, {r4-r11, lr}\n");
+    tcb_t *task = &tasks[lastTask];
+    uint32_t *gg = (uint32_t *)task->stack;
+
+    asm volatile("mov %0, r0\n" : "=r" (tasks[lastTask].stack));
+    if ((int)gg[3] == 0x4) {
+	int fd = (int)gg[9];
+	char * buf = (char *)gg[10];
+	fio_read(fd, buf, sizeof(buf));
+	print_str(buf);
+	//tasks[lastTask].stack[9] = count;
+    }
+    asm volatile("mov r0, %0\n" : : "r" (tasks[lastTask].stack));
+    asm volatile("ldmia r0!, {r4-r11, lr}\n");
+    asm volatile("msr psp, r0\n");
+    asm volatile("bx lr\n");
+             
+}
 
 void __attribute__((naked)) pendsv_handler()
 {
