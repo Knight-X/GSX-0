@@ -11,14 +11,6 @@
 int pr = 0;
 
 int timeup = 0;
-typedef struct{
-    void *stack;
-    void *orig_stack;
-    uint8_t in_use;
-    uint8_t tid;
-    int priority;
-    struct list listNode;
-} tcb_t;
 
 static tcb_t tasks[MAX_TASKS];
 static int first = 1;
@@ -105,22 +97,40 @@ void __attribute__((naked)) svc_handler()
    // unsigned int x = ((unsigned int *)gg)[3];
     asm volatile("mrs r0, psp\n"
 		"stmdb r0!, {r4-r11, lr}\n");
-    tcb_t *task = &tasks[lastTask];
-    uint32_t *gg = (uint32_t *)task->stack;
 
     asm volatile("mov %0, r0\n" : "=r" (tasks[lastTask].stack));
+    /*tcb_t *task = &tasks[lastTask];
+    uint32_t *gg = (uint32_t *)task->stack;
     if ((int)gg[3] == 0x4) {
 	int fd = (int)gg[9];
 	char * buf = (char *)gg[10];
 	fio_read(fd, buf, sizeof(buf));
 	print_str(buf);
 	//tasks[lastTask].stack[9] = count;
-    }
+    }*/
+    asm volatile("bl syscall_handler\n");
     asm volatile("mov r0, %0\n" : : "r" (tasks[lastTask].stack));
     asm volatile("ldmia r0!, {r4-r11, lr}\n");
     asm volatile("msr psp, r0\n");
     asm volatile("bx lr\n");
              
+}
+
+void syscall_handler()
+{
+	tcb_t *task = &tasks[lastTask];
+	uint32_t *stack = (uint32_t *)task->stack;
+	switch (stack[3]) {
+		case 0x4: 
+		{
+			int fd = (int)stack[9];
+			char *buf = (char *)stack[10];
+			fio_read(fd, buf, sizeof(buf), &tasks[lastTask]);
+			//print_str(buf);
+			break;
+		}
+	
+	}
 }
 
 void __attribute__((naked)) pendsv_handler()

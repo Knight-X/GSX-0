@@ -51,9 +51,15 @@ static void delay(volatile int count)
 void busy_loop(void *str)
 {
     while (1) {
-        print_str(str);
-        print_str(": Running....\n");
+        //print_str(str);
+        //print_str(": Running....\n");
         delay(1000);
+    char buf[128];
+    size_t count;
+    int fd = open("/romfs/test.txt", 0, O_RDONLY);
+    //char *x = "g\n";
+   count =  read(fd, buf, sizeof(buf));
+        fio_write(1, buf, count);
     }
 }
 
@@ -82,12 +88,6 @@ int main(void)
     fio_init();
     register_romfs("romfs", &_sromfs);
 
-    char buf[128];
-    size_t count;
-    int fd = open("/romfs/test.txt", 0, O_RDONLY);
-
-        count = fio_read(fd, buf, sizeof(buf));
-        fio_write(1, buf, count);
 
     for (int i = 0; i < PRIORITY_LIMIT; i++) {
         list_init(&readyList[i]);

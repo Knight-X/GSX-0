@@ -11,13 +11,8 @@ static ssize_t stdin_read(void *opaque, void *buf, size_t count) {
 }
 
 static ssize_t stdin_write(void *opaque, void *buf, size_t count) {
-	int i;
 	const char *data = (const char *)buf;
-        print_str("xxx\n");	
-	for (i = 0; i < count; i++) {
-		const char *a = (data + i);
-		print_str(a);
-	}
+		print_str(data);
 
 	return count;
 }
@@ -80,12 +75,14 @@ void fio_set_opaque(int fd, void *opaque)
 		fio_t[fd].opaque = opaque;
 	}
 }	
-int fio_read(int fd, void *buf, size_t count) 
+int fio_read(int fd, void *buf, size_t count, tcb_t *task_t) 
 {
+	tcb_t *task = task_t;
 	int r;
 	if (fio_is_open(fd)) {
 		if (fio_t[fd].fdread) {
 			r = fio_t[fd].fdread(fio_t[fd].opaque, buf, count);
+			((uint32_t *)task->stack)[9] = r;
 		} else {
 			r = -3;
 		}

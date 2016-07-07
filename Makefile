@@ -10,7 +10,7 @@ CFLAGS = -fno-common -ffreestanding -O0 -std=gnu99 \
 TARGET = os.bin
 all: $(TARGET)
 
-$(TARGET): test-romfs.o os.c init.c malloc.c task.c list.c hash-djb2.c romfs.c fio.c filesystem.c
+$(TARGET): test-romfs.o os.c init.c malloc.c task.c list.c hash-djb2.c romfs.c fio.c filesystem.c syscall.S
 	$(CC) $(CFLAGS) $^ -o os.elf
 	$(CROSS_COMPILE)objcopy -Obinary os.elf os.bin
 	$(CROSS_COMPILE)objdump -S os.elf > os.list

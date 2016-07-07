@@ -2,6 +2,7 @@
 #define  __FIO_H__
 
 #include <stdio.h>
+#include "task.h"
 
 #define MAX_FDS 42
 
@@ -33,7 +34,7 @@ __attribute__((constructor)) void fio_init();
 
 int fio_is_open(int fd);
 int fio_open(fdread_t, fdwrite_t, fdseek_t, fdclose_t, void *);
-ssize_t fio_read(int fd, void *buf, size_t count);
+ssize_t fio_read(int fd, void *buf, size_t count, tcb_t *);
 ssize_t fio_write(int fd, void *buf, size_t count);
 
 void fio_set_opaque(int fd, void *opaque);

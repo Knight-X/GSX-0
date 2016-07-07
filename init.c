@@ -18,8 +18,7 @@ extern uint32_t _ebss;
 extern uint32_t _estack;
 
 
-//__attribute((section(".isr_vector")))
-__ISR_VECTOR
+__attribute((section(".isr_vector")))
 uint32_t *isr_vectors[] = {
     [0x00] = (uint32_t *) &_estack,
     [0x01] = (uint32_t *) reset_handler,
