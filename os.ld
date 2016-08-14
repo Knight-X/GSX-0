@@ -16,7 +16,7 @@ SECTIONS
         *(.rodata)
         *(.rodata.*)
         _sromfs = .;
-	test-romfs.o(.romfs.*)
+	*(.romfs.*)
         _eromfs = .;
         _sinidata = .;
     } >FLASH
