@@ -49,11 +49,12 @@ TARGET_FORMAT = elf32-littlearm
 TARGET_OBJCOPY_BIN = $(CROSS_COMPILE)objcopy -I binary -O $(TARGET_FORMAT) --binary-architecture $(CPU)
 
 mkromfs:
-	gcc -o mkromfs mkromfs.c
+	gcc -o mkromfs files/mkromfs.c
 
 test-romfs.o: mkromfs
 	./mkromfs -d test-romfs test-romfs.bin
-	$(TARGET_OBJCOPY_BIN) --prefix-sections '.romfs' test-romfs.bin test-romfs.o
+	$(TARGET_OBJCOPY_BIN) --prefix-sections '.romfs' test-romfs.bin build/kernel/test-romfs.o
+	@rm test-romfs.bin
 
 qemu: $(out)/$(TARGET).bin
 	@echo "Press Ctrl-A and then X to exit QEMU"
