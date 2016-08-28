@@ -6,6 +6,7 @@ out = build
 
 includes = \
 	include \
+	include/lib \
 
 CFLAGS_INCLUDE = $(foreach i, $(includes), -I$(i))
 
@@ -17,11 +18,13 @@ CFLAGS = -fno-common -ffreestanding -O0 -std=gnu99 \
 TARGET = os
 
 include kernel/build.mk
+include lib/build.mk
 
 objs_from_dir = $(foreach obj, $($(2)-y), \
 	$(out)/$(1)/$(obj))
 
 all-y += $(call objs_from_dir,kernel,kernel)
+all-y += $(call objs_from_dir,lib,lib)
 
 .PHONY: all
 all: $(out)/$(TARGET).bin
@@ -67,5 +70,5 @@ qemudbg: $(TARGET)
 exec:
 	@cd /home/kazami; pwd
 clean:
-	rm -f *.o *.elf *.bin *.list
+	rm -f build/*.o build/*.elf build/*.bin build/*.list
 
