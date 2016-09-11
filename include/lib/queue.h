@@ -14,11 +14,8 @@ struct queue {
 };	
 struct Queue {
 	struct queue *q;
-	int (*push)(struct Queue *list, int len);
-	int (*pop)(struct Queue *list);
+	int (*enqueue)(struct Queue *list, int len);
+	int (*dequeue)(struct Queue *list);
 };
 
-int init(struct Queue **self);
-int push(struct Queue *list, int len);
-int pop(struct Queue *list);
 #endif

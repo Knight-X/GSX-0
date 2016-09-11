@@ -15,6 +15,10 @@ CFLAGS = -fno-common -ffreestanding -O0 -std=gnu99 \
 	 -mcpu=cortex-m3 -mthumb \
 	 -Wl,-Tos.ld -nostartfiles $(CFLAGS_INCLUDE) \
 
+CPU=arm
+TARGET_FORMAT = elf32-littlearm
+TARGET_OBJCOPY_BIN = $(CROSS_COMPILE)objcopy -I binary -O $(TARGET_FORMAT) --binary-architecture $(CPU)
+
 TARGET = os
 
 include kernel/build.mk
@@ -47,9 +51,6 @@ $(out)/%.o:%.S
 test: test.c task.c
 	$(CC) $(CFLAGS) $^ -o task.elf
 	$(CROSS_COMPILE)objcopy -Obinary task.elf task.bin
-CPU=arm
-TARGET_FORMAT = elf32-littlearm
-TARGET_OBJCOPY_BIN = $(CROSS_COMPILE)objcopy -I binary -O $(TARGET_FORMAT) --binary-architecture $(CPU)
 
 mkromfs:
 	gcc -o mkromfs files/mkromfs.c
